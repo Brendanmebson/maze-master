@@ -85,27 +85,44 @@ export default function GameScreen({ navigation, route }) {
     dispatch({ type: 'SET_LEVEL_DATA', payload: levelData });
   };
 
-  const handleTilePress = (x, y) => {
-    if (!gameEngine || gameState.gameState !== 'playing') return;
+ const handleTilePress = (x, y) => {
+  if (!gameEngine || gameState.gameState !== 'playing') return;
 
-    const moved = gameEngine.movePlayer(x, y);
+  // Calculate the direction of movement
+  const currentX = gameState.player.x;
+  const currentY = gameState.player.y;
+  
+  // Only allow movement to adjacent tiles (not diagonal)
+  const deltaX = x - currentX;
+  const deltaY = y - currentY;
+  
+  // Check if the move is valid (adjacent tile only)
+  if (Math.abs(deltaX) + Math.abs(deltaY) !== 1) {
+    return; // Not an adjacent tile, ignore
+  }
+  
+  // Calculate new position
+  const newX = currentX + deltaX;
+  const newY = currentY + deltaY;
+  
+  const moved = gameEngine.movePlayer(newX, newY);
 
-    if (moved) {
-      playSound('move');
-      const newState = gameEngine.getGameState();
-      setGameState(newState);
+  if (moved) {
+    playSound('move');
+    const newState = gameEngine.getGameState();
+    setGameState(newState);
 
-// Update power-ups
-      gameEngine.updatePowerUps();
+    // Update power-ups
+    gameEngine.updatePowerUps();
 
-// Check game end conditions
-      if (newState.gameState === 'victory') {
-        handleLevelComplete();
-      } else if (newState.gameState === 'gameOver') {
-        handleGameOver();
-      }
+    // Check game end conditions
+    if (newState.gameState === 'victory') {
+      handleLevelComplete();
+    } else if (newState.gameState === 'gameOver') {
+      handleGameOver();
     }
-  };
+  }
+};
 
   const handleLevelComplete = () => {
     playSound('win');
@@ -220,6 +237,7 @@ export default function GameScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 35,
     backgroundColor: '#1a1a1a',
   },
   loadingContainer: {

@@ -1,5 +1,5 @@
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../App';
+import { db } from '../config/firebase';
 
 export const saveUserProgress = async (userId, progressData) => {
   try {
@@ -45,7 +45,7 @@ export const saveLeaderboard = async (userId, levelNumber, moves, timeCompleted)
       timestamp: new Date(),
     });
 
-// Keep only top 10 scores
+    // Keep only top 10 scores
     scores.sort((a, b) => a.moves - b.moves);
     scores = scores.slice(0, 10);
 
